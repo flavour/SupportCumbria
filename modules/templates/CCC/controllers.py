@@ -2339,14 +2339,18 @@ class verify_email(S3CustomController):
             approvers = db(query).select(utable.email)
 
         if not approvers:
-            # Agencies are approved by ADMIN(s) with a CVS email
+            # Agencies were approved by ADMIN(s) with a CVS email
             # Others approved by these same ADMINs if no ORG_ADMIN(s) exist
-            query = (gtable.uuid == "ADMIN") & \
-                    (gtable.id == mtable.group_id) & \
-                    (mtable.user_id == utable.id)
-            if not s3.debug:
-                query &= (utable.email.like("%@cumbriacvs.org.uk"))
-            approvers = db(query).select(utable.email)
+            #query = (gtable.uuid == "ADMIN") & \
+            #        (gtable.id == mtable.group_id) & \
+            #        (mtable.user_id == utable.id)
+            #if not s3.debug:
+            #    query &= (utable.email.like("%@cumbriacvs.org.uk"))
+            #approvers = db(query).select(utable.email)
+            # New rule is a hardcoded address:
+            approvers = [
+                {"email": "support.cumbria@westmorlandandfurness.gov.uk"},
+            ]
 
         # Mail the Approver(s)
         # NB This is not multi-lingual
