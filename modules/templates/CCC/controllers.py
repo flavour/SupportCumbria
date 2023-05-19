@@ -2349,7 +2349,7 @@ class verify_email(S3CustomController):
             #approvers = db(query).select(utable.email)
             # New rule is a hardcoded address:
             approvers = [
-                {"email": "support.cumbria@westmorlandandfurness.gov.uk"},
+                Storage(email = "support.cumbria@westmorlandandfurness.gov.uk"),
             ]
 
         # Mail the Approver(s)
