@@ -5579,10 +5579,43 @@ $('.copy-link').click(function(e){
                     # Don't attempt to load comments
                     s3.rfooter = None
 
+            elif r.http == "POST" and r.method not in ("import", "deduplicate"):
+                post_vars = r.post_vars
+                if "selected" in post_vars:
+                    # Bulk Action 'Delete' has been selected
+                    selected = post_vars.selected
+                    if selected:
+                        selected = selected.split(",")
+                    else:
+                        selected = []
+
+                    from s3 import FS
+
+                    if "filterURL" in post_vars:
+                        from s3 import S3URLQuery
+                        filters = S3URLQuery.parse_url(post_vars.filterURL)
+                    else:
+                        filters = None
+
+                    if post_vars.mode == "Exclusive":
+                        query = ~(FS("id").belongs(selected))
+                    else:
+                        # Inclusive mode
+                        query = (FS("id").belongs(selected))
+
+                    resource = current.s3db.resource("project_task",
+                                                     filter = query,
+                                                     vars = filters)
+                    resource.delete()
+
             return result
         s3.prep = prep
 
-        if not READER:
+        if READER:
+            # Add Bulk Delete to List View
+            attr["dtargs"] = {"dt_bulk_actions": [(T("Delete"), "delete")],
+                              }
+        else:
             # Custom postp
             standard_postp = s3.postp
             def postp(r, output):
